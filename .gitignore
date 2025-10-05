@@ -1,0 +1,9 @@
+.vscode
+
+#ignoring all compiled g++ modules for linking
+#can be constructed using g++ -> g++ -Iinclude -c PATH(src/utils.cpp) -o utils.o -> -c to compile only. 
+#used for linking to main exe file.
+*.o 
+
+#ignores built exe-s
+*.exe
