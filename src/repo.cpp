@@ -73,6 +73,7 @@ void showLogs()
         std::cout << "No repository found. Check directory or init a new repo using: mgc init.\n";
     }
 
+    //if file & repo exist stream log.txt line by line
     std::ifstream log(log_file);
     std::string line;
 
@@ -81,5 +82,14 @@ void showLogs()
     {
         std::cout << line << " \n";
     }
+    
     log.close();
+}
+
+void branchRepo() {
+    //get current branch state.
+
+    //make a copy and branch trees
+
+    //link to tree
 }

@@ -1,6 +1,8 @@
 // utils
 #include "staging.h"
 #include "repo.h"
+#include "hash.h"
+#include "hash_utils.h"
 
 // libs
 #include <vector>
@@ -58,6 +60,9 @@ void addFile(const std::string &filename)
     fs::path staging_dir = getStagingPath();
     auto ignored = getIgnoredPatterns();
 
+    auto index = loadHashes(); // load current hashes
+    bool any_added = false;
+
     if (filename == ".")
     {
         for (auto &f : fs::recursive_directory_iterator(cwd))
@@ -65,30 +70,56 @@ void addFile(const std::string &filename)
             if (isIgnored(f.path(), ignored) || !fs::is_regular_file(f.path()))
                 continue;
 
-            fs::path dest = staging_dir / fs::relative(f.path(), cwd);
-            fs::create_directories(dest.parent_path());
+            std::string rel_path = fs::relative(f.path(), cwd).string();
+            std::string new_hash = hashFile(f.path().string());
 
-            // copy only if there are changes
-            if (!fs::exists(dest) || fs::file_size(dest) != fs::file_size(f.path()))
+            if (index[rel_path] != new_hash)
             {
+                fs::path dest = staging_dir / rel_path;
+                fs::create_directories(dest.parent_path());
                 fs::copy_file(f.path(), dest, fs::copy_options::overwrite_existing);
-                std::cout << "Added " << fs::relative(f.path(), cwd).string() << ".\n";
+
+                index[rel_path] = new_hash;
+                std::cout << "Staged: " << rel_path << "\n";
+                any_added = true;
             }
         }
-        std::cout << "All files are staged!\n";
+
+        if (!any_added)
+        {
+            std::cout << "No changes detected - nothing to stage.\n";
+        }
+        else
+        {
+            saveHashes(index);
+            std::cout << "All changed files are staged!\n";
+        }
         return;
     }
 
+    // Handle single file case
     fs::path file_to_add = cwd / filename;
-
     if (!fs::exists(file_to_add))
     {
         std::cout << "File does not exist.\n";
+        return;
     }
 
-    fs::path dest = staging_dir / filename;
-    fs::create_directories(dest.parent_path());
-    fs::copy_file(file_to_add, dest, fs::copy_options::overwrite_existing);
+    std::string rel_path = filename;
+    std::string new_hash = hashFile(file_to_add.string());
 
-    std::cout << "Staged " << filename << "successfully.\n";
+    if (index[rel_path] != new_hash)
+    {
+        fs::path dest = staging_dir / rel_path;
+        fs::create_directories(dest.parent_path());
+        fs::copy_file(file_to_add, dest, fs::copy_options::overwrite_existing);
+        index[rel_path] = new_hash;
+
+        std::cout << "Staged: " << rel_path << "\n";
+        saveHashes(index);
+    }
+    else
+    {
+        std::cout << "No changes in " << rel_path << ".\n";
+    }
 }
