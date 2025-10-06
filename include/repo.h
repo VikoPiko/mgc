@@ -10,4 +10,4 @@ fs::path getCommitsPath();
 
 void initRepo();
 void showStatus();
-void ShowLogs();
+void showLogs();

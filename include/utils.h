@@ -2,3 +2,5 @@
 #include <string>
 
 std::string getCurrentTime();
+
+void showHelp();
