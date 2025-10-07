@@ -25,7 +25,7 @@ mgc log
 mgc test 
 ```
 
-## Instalation
+## Installation
 
 * To install the CLI:
 
@@ -80,7 +80,6 @@ Had issues statically linking to curl.
 * Staged/Added files are added to the .mgc/staging folder
 
 ### hash.cpp + hash_utils.cpp -> helper functions that do the actual hashing.
-### Hashing uses evp.h instead of sha.h due to openssl depreciation.
 
 ### commit.cpp -> Responsible for commiting staged files. If a file is unchanged (checked via file hash) it is ignored and only changed files are commited.
 * During commit a message for that commit is added as a string format i.e ``` mgc commit "commit message" ```
