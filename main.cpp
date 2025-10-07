@@ -12,8 +12,10 @@ int main(int argc, char *argv[])
 {
     if (argc < 2)
     {
-        std::cout << "Usage: mygit <command> [args]\n\n";
-        std::cout << "To see available commands run: mgc help || mgc -h || mgc --help\n";
+        std::cout << "\n=============================================================\n";
+        std::cout << "\n               Usage: mgc <command> [args]\n";
+        std::cout << "\nTo see available commands run: mgc help || mgc -h || mgc --help\n";
+        std::cout << "\n=============================================================\n\n";
         return 1;
     }
 

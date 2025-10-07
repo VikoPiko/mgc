@@ -4,6 +4,7 @@
 
 .gitignore
 .vscode
+/include/openssl
 .mgc
 
 mgc.exe

@@ -14,7 +14,7 @@ void commitChanges(const std::string &message)
     fs::path staging_dir = getStagingPath();
     fs::path commit_dir = getCommitsPath();
 
-    if (fs::is_empty(staging_dir))
+    if (!fs::exists(staging_dir) || fs::is_empty(staging_dir))
     {
         std::cout << "Nothing to commit.\n";
         return;
@@ -28,14 +28,34 @@ void commitChanges(const std::string &message)
     fs::path new_commit = commit_dir / folder_name.str();
     fs::create_directory(new_commit);
 
-    for (auto &f : fs::directory_iterator(staging_dir))
-        fs::copy(f.path(), new_commit / f.path().filename(), fs::copy_options::overwrite_existing);
+    // fixes folder error 
+    // Recursively copy all files and directories from staging
+    for (auto it = fs::recursive_directory_iterator(staging_dir); it != fs::recursive_directory_iterator(); ++it)
+    {
+        const auto &path = it->path();
+        fs::path rel_path = fs::relative(path, staging_dir);
+        fs::path dest = new_commit / rel_path;
 
+        if (fs::is_directory(path))
+        {
+            fs::create_directories(dest);
+            continue;
+        }
+
+        if (fs::is_regular_file(path))
+        {
+            fs::create_directories(dest.parent_path());
+            fs::copy_file(path, dest, fs::copy_options::overwrite_existing);
+        }
+    }
+
+    // appends the commit info to log file
     std::ofstream log(getRepoPath() / "log.txt", std::ios::app);
     log << "Commit " << folder_name.str() << ": " << message << "\n";
 
-    for (auto &f : fs::directory_iterator(staging_dir))
-        fs::remove_all(f.path());
+    // cleans up staging dir after commit
+    fs::remove_all(staging_dir);
+    fs::create_directories(staging_dir);
 
     std::cout << "Committed changes with message: " << message << "\n";
 }

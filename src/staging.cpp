@@ -16,7 +16,7 @@ std::vector<std::string> getIgnoredPatterns()
 {
     std::vector<std::string> ignored; // vector to store ignored files
 
-    fs::path ignore_file = fs::current_path() / ".mgcignore";
+    fs::path ignore_file = fs::current_path() / ".mgc-ignore";
     if (fs::exists(ignore_file))
     {
         std::ifstream in(ignore_file);
@@ -59,25 +59,47 @@ void addFile(const std::string &filename)
     fs::path cwd = fs::current_path();
     fs::path staging_dir = getStagingPath();
     auto ignored = getIgnoredPatterns();
+    ignored.push_back(".mgc/"); // ignore mgc folder
 
     auto index = loadHashes(); // load current hashes
     bool any_added = false;
 
     if (filename == ".")
     {
-        for (auto &f : fs::recursive_directory_iterator(cwd))
+        for (auto it = fs::recursive_directory_iterator(cwd); it != fs::recursive_directory_iterator(); ++it)
         {
-            if (isIgnored(f.path(), ignored) || !fs::is_regular_file(f.path()))
+            const auto &path = it->path();
+
+            if (isIgnored(path, ignored))
+            {
+                if (fs::is_directory(path))
+                    it.disable_recursion_pending(); // skip ignored dirs
+                continue;
+            }
+
+            if (fs::is_directory(path))
+            {
+                fs::path rel_dir = fs::relative(path, cwd);
+                fs::path dest_dir = staging_dir / rel_dir;
+                fs::create_directories(dest_dir);
+                continue;
+            }
+
+            if (!fs::is_regular_file(path))
                 continue;
 
-            std::string rel_path = fs::relative(f.path(), cwd).string();
-            std::string new_hash = hashFile(f.path().string());
+            // clean relative path
+            std::string rel_path = fs::relative(path, cwd).string();
+            if (rel_path.rfind("./", 0) == 0)
+                rel_path = rel_path.substr(2);
+
+            std::string new_hash = hashFile(path.string());
 
             if (index[rel_path] != new_hash)
             {
                 fs::path dest = staging_dir / rel_path;
                 fs::create_directories(dest.parent_path());
-                fs::copy_file(f.path(), dest, fs::copy_options::overwrite_existing);
+                fs::copy_file(path, dest, fs::copy_options::overwrite_existing);
 
                 index[rel_path] = new_hash;
                 std::cout << "Staged: " << rel_path << "\n";
@@ -97,7 +119,7 @@ void addFile(const std::string &filename)
         return;
     }
 
-    // Handle single file case
+    // single file case
     fs::path file_to_add = cwd / filename;
     if (!fs::exists(file_to_add))
     {
@@ -105,7 +127,10 @@ void addFile(const std::string &filename)
         return;
     }
 
-    std::string rel_path = filename;
+    std::string rel_path = fs::relative(file_to_add, cwd).string();
+    if (rel_path.rfind("./", 0) == 0)
+        rel_path = rel_path.substr(2);
+
     std::string new_hash = hashFile(file_to_add.string());
 
     if (index[rel_path] != new_hash)
