@@ -2,6 +2,7 @@
 #include "commit.h"
 #include "staging.h"
 #include "utils.h"
+#include "req-handler.h"
 
 #include <iostream>
 
@@ -29,6 +30,11 @@ int main(int argc, char *argv[])
         showLogs();
     else if (command == "add")
         addFile(argv[2]);
+    else if (command == "test")
+    {
+         std::cout << "Running testRequest()...\n";
+        testRequest();
+    }
     else if (command == "commit")
         commitChanges(argv[2]);
     else if (command == "help" || command == "--help" || command == "-h")
