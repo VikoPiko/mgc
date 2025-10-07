@@ -56,12 +56,14 @@ Had issues statically linking to curl.
 └── build.bat
 ```
 
-- /include       #  Contains all of the header files for the application
-- /lib           # Contains all of the libraries needed to compile // for curl + openssl
-- /src           # Includes the implementation of applications internal header files
-- main.cpp       # Main entry point of the application
-- .mgc-ignore    # Similar to .gitignore -> list all files you wish to ignore from staging/commiting
-- build.bat      # Build script to run if any changes are made to the codebase
+| File/Folder   | Description                                           |
+|---------------|-------------------------------------------------------|
+| /include      | Contains all of the header files for the application  |
+| /lib          | Contains all of the libraries needed to compile       |
+| /src          | Includes implementation of internal header files      |
+| main.cpp      | Main entry point of the application                   |
+| .mgc-ignore   | List of files to ignore from staging/committing       |
+| build.bat     | Build script to run if code changes                   |
 
 ## Implementation
 
