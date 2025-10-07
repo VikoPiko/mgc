@@ -23,7 +23,7 @@ std::string getCurrentTime()
 
 void showHelp()
 {
-    std::cout << "\n=== MGC - Mini Git Clone CLI ===\n\n";
+    std::cout << "\n\t===================================== MGC - Mini Git Clone CLI =====================================\n\n";
     std::cout << "Usage:\n";
     std::cout << "  mgc <command> [options]\n\n";
     std::cout << "Commands:\n";
@@ -31,7 +31,7 @@ void showHelp()
     std::cout << "  status                Show status of files (Staged, Committed, or Untracked).\n";
     std::cout << "  log                   Show commit history.\n";
     std::cout << "  add <file|.>          Stage a file or all files (use '.' for all, recursive).\n";
-    std::cout << "  commit <message>      Commit all staged files with a message.\n\n";
+    std::cout << "  commit <message>      Commit all staged files with a message -> needs to be passed as string -> \"<message>\" \n\n";
     std::cout << "Options:\n";
     std::cout << "  -h, --help            Show this help message.\n\n";
     std::cout << "Examples:\n";

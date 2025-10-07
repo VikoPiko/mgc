@@ -1,11 +1,14 @@
 #include "commit.h"
 #include "repo.h"
+#include "utils.h"
+
 #include <filesystem>
 #include <fstream>
 #include <iostream>
 #include <sstream>
 #include <chrono>
 #include <iomanip>
+#include <vector>
 
 namespace fs = std::filesystem;
 
@@ -13,6 +16,7 @@ void commitChanges(const std::string &message)
 {
     fs::path staging_dir = getStagingPath();
     fs::path commit_dir = getCommitsPath();
+    auto time_stamp = getCurrentTime();
 
     if (!fs::exists(staging_dir) || fs::is_empty(staging_dir))
     {
@@ -28,8 +32,9 @@ void commitChanges(const std::string &message)
     fs::path new_commit = commit_dir / folder_name.str();
     fs::create_directory(new_commit);
 
-    // fixes folder error 
-    // Recursively copy all files and directories from staging
+    std::vector<std::string> committed_files;
+
+    // Copy all files recursively from staging!
     for (auto it = fs::recursive_directory_iterator(staging_dir); it != fs::recursive_directory_iterator(); ++it)
     {
         const auto &path = it->path();
@@ -46,16 +51,21 @@ void commitChanges(const std::string &message)
         {
             fs::create_directories(dest.parent_path());
             fs::copy_file(path, dest, fs::copy_options::overwrite_existing);
+            committed_files.push_back(rel_path.string());
         }
     }
-
-    // appends the commit info to log file
+    // added logging commited files/folders to log.txt for readibility.
     std::ofstream log(getRepoPath() / "log.txt", std::ios::app);
-    log << "Commit " << folder_name.str() << ": " << message << "\n";
+    log << "Commit " << folder_name.str() << ": " << message << "\t Created at: " << time_stamp << "\n";
 
-    // cleans up staging dir after commit
+    for (const auto &file : committed_files)
+        log << "  - " << file << "\n";
+
+    log << "------------------------------------------------------------\n";
+
+    // clean up after commit
     fs::remove_all(staging_dir);
     fs::create_directories(staging_dir);
 
-    std::cout << "Committed changes with message: " << message << "\n";
+    std::cout << "Committed " << committed_files.size() << " file(s) with message: " << message << "\n";
 }
