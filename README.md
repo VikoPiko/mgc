@@ -1,7 +1,9 @@
 ## MGC or simply Mini Git CLI
 MGC is an attempt at recreating git functionality with the purpose of deeper understanding of git internals as well as learning how complex systems are created and implemented.
+Only supported on Windows as of today.
 
 * MGC supports the following commands:
+* 
 ```bash
 # Initialized empty repository in the current folder
 mgc init
