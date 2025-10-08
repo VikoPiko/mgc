@@ -20,6 +20,9 @@ mgc status
 # Logs the Repository logs (created, commited, etc)
 mgc log
 
+# Shows command usage
+mgc help || mgc -h || mgc --help
+
 # Dummy function with the idea of later adding git push/pull/clone functionality using curl
 # For now it simply calls the follwing url: http://localhost:3000/hello for testing purposes
 mgc test 
